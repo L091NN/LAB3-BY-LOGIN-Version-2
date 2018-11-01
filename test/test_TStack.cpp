@@ -1,5 +1,4 @@
 #include "gtest.h"
-#include <string>
 #include "TStack.h"
 
 using namespace std;
