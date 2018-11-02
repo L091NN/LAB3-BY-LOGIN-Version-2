@@ -74,7 +74,7 @@ TEST(Postfix, throw_when_number_bkt_open_and_bkt_close_not_equal)
 
 TEST(Postfix, throw_when_bkt_close_before_not_operator)
 {
-	ASSERT_ANY_THROW(Postfix p("cos(b)a"));
+	ASSERT_ANY_THROW(Postfix p("cos(b)a+v"));
 }
 
 TEST(Postfix, throw_when_bkt_close_before_bkt_open)

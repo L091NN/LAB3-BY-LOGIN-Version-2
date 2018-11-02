@@ -1,6 +1,6 @@
 #include"Postfix.h"
 
-Postfix::Postfix(string PRF1)
+Postfix::Postfix(string PRF1 = "")
 {
 	PRF = PRF1;
 	fill_OP_ex1();
@@ -44,70 +44,6 @@ void Postfix::set_prf(string PRF1)
 
 }
 
-//void Postfix::disassemble1(string PRF1)
-//{
-//	string tmp = "";
-//	for (int x = 0; x < PRF1.size(); x++)
-//	{
-//		if (PRF1[x] == '(')
-//		{
-//			if (tmp == "")
-//			{
-//				OP_prf.push_back("(");
-//				continue;
-//			}
-//			else
-//			{
-//				for (int i = 0; i < OP_ex2.size(); i++)
-//				{
-//					if (OP_ex2[i] == tmp)
-//					{
-//						OP_prf.push_back(tmp);
-//						tmp = "";
-//						break;
-//					}
-//				}
-//				if (tmp != "") throw ("Incorrect input!");
-//				continue;
-//			}
-//		}
-//		
-//
-//		for (int y = 2; y < OP_ex1.size(); y++) //
-//		{
-//			
-//			if (PRF1[x] == OP_ex1[y][0])
-//			{
-//				if (tmp == "")
-//				{
-//					if (OP_prf[OP_prf.size() - 1] == ")")
-//					throw("Incorrect input!");
-//				}
-//				else
-//				{
-//					operand.push_back(tmp);
-//					tmp = "////";
-//					OP_prf.push_back(OP_ex1[y]);
-//					break;
-//				}
-//			}
-//		}
-//		if (tmp == "////") tmp = "";
-//		else tmp += PRF1[x];
-//
-//		if (x == PRF1.size() - 1)
-//
-//		cout << x << ' ';
-//		for (int i = 0; i < OP_prf.size(); i++)
-//			cout << OP_prf[i][0] << " ";
-//		cout << " operand: ";
-//		for (int i = 0; i < operand.size(); i++)
-//			cout << operand[i][0];
-//		cout << endl;
-//	}
-//		
-//}
-
 bool Postfix::disassemble(const string PRF1)
 {
 	if (PRF1 == "") return 0;
@@ -130,8 +66,21 @@ bool Postfix::disassemble(const string PRF1)
 			{
 				operand.push_back(tmp);
 				tmp = "";
+			} 
+			cout << x << ' ';
+			for (int i = 0; i < OP_prf.size(); i++)
+			{
+				for (int j = 0; j < OP_prf[i].size(); j++)
+					cout << OP_prf[i][j];
+				cout << " ";
 			}
-			break; 
+
+			cout << " operand: ";
+			for (int i = 0; i < operand.size(); i++)
+				cout << operand[i][0];
+			cout << endl;
+
+			break;
 		}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		if (PRF1[x] == '(') // если встречена ( , то...
@@ -139,6 +88,11 @@ bool Postfix::disassemble(const string PRF1)
 			if (ind == 1) throw("Incorrect input!");  // после (- ожидалс€ операнд и ) , а встречена ( , => ошибка
 
 			if (x == PRF1.size() - 1) throw("The last simbol incorrect!");// если это  последний символ в строчке, то это ошибка
+
+			if (OP_prf.size() != 0)  // если это не перва€ операци€, то...
+			{
+				if (OP_prf[OP_prf.size() - 1] == ")") throw("Incorrect input");  // если последн€€ операци€ ) , то это ошибка
+			}
 
 			++bkt_pot;    // прибавл€ем к показателю скобок 1
 
@@ -155,7 +109,7 @@ bool Postfix::disassemble(const string PRF1)
 					{
 						if (tmp == OP_ex2[y])              // если така€ операци€ нашлась , то ...
 						{
-							OP_prf.push_back(OP_ex1[y]);   // добавл€ем операцию в вектор OP_prf
+							OP_prf.push_back(OP_ex2[y]);   // добавл€ем операцию в вектор OP_prf
 							tmp = "////";  // присваиваем буферу //// 
 							break;    // выходим из цикла поиска многосимвольных опреаций
 
@@ -168,15 +122,90 @@ bool Postfix::disassemble(const string PRF1)
 					}
 					if (tmp != "")	throw("Incorrect input"); // если по итогу буфер не пуст, то это ошибка
 					OP_prf.push_back("("); // все услови€ дл€ определени€ ( выполнены, можно спокойно еЄ добавить
+					continue;
 				}
 		}
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		if (PRF1[x] == ')')
+		if (PRF1[x] == ')') // если встречена ) , то...
 		{
+			if (bkt_pot < 1) throw ("Incorrect input!");   // если закрывающих скобок будет больше , то это ошибка
 
+			if (tmp == "") // если буфер пуст, то...
+			{
+				if (OP_prf[OP_prf.size() - 1] != ")") throw("Incorrect input"); // если последн€€ операци€ не ) , то это ошибка
+			}
+
+			if (x == PRF1.size() - 1)
+			{
+
+			}
+
+			--bkt_pot;  // отнимаем от показател€ скобок 1
+
+
+			if (ind == 1) // после (- ожидалс€ операнд и ) 
+			{
+				ind = 0; // присваиваем индекатору 0	
+			}
+
+			operand.push_back(tmp); //добавл€ем значение буфера к операндам
+			OP_prf.push_back(")"); //добавл€ем ) в буфер операций
+			tmp = ""; // обнул€ем буфер
+			continue; // переходим к следующему символу
 		}
-		
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		string buf; // создаем буфер дл€ хранени€ потенциальной операции
+		for (int z = 0; z < OP_ex1.size(); z++) // запускаем цикл поиска односимвольных операций
+		{
+			if (PRF1[x] == OP_ex1[z][0]) // если символ совпал с операцией , то ...
+			{
+				if (x == 0) throw("Incorrect input!");
+				if (tmp == "") // если буфер пустой
+				{
+					if (OP_prf[OP_prf.size() - 1] != ")") throw("Incorrect input"); // если последн€€ операци€ не ) , то это ошибка
+					if (OP_prf[OP_prf.size() - 1] == ")") // если последн€€ операци€ ) , то ...
+					{
+						// мы ничего не добавл€ем к операндам
+						buf = OP_ex1[z]; // кидаем операцию в буфер
+						tmp = "////";  // присваиваем буферу ////
+						break;    // выходим из цикла поиска односимвольных опреаций
+					}
+				}
+				
+				buf = OP_ex1[z];
+				operand.push_back(tmp);  //добавл€ем значение буфера к операндам
+				tmp = "////";  // присваиваем буферу ////
+				break;    // выходим из цикла поиска односимвольных опреаций
+			}
+		}
+
+		if (tmp == "////")
+		{
+			if (ind == 1) throw("Incorrect input!");  // после (- ожидалс€ операнд и ) , а встречена не ) , => ошибка
+			tmp = "";
+			OP_prf.push_back(buf);
+			continue;
+		}
+
+		if (OP_prf.size() != 0)  // если это не перва€ операци€, то...
+		{
+			if (OP_prf[OP_prf.size() - 1] == ")") throw("Incorrect input");  // если последн€€ операци€ ) , то это ошибка
+		}
+
+		tmp += PRF1[x];
+
+		//cout << x << ' ';
+		//		for (int i = 0; i < OP_prf.size(); i++)
+		//			cout << OP_prf[i][0] << " ";
+		//		cout << " operand: ";
+		//		for (int i = 0; i < operand.size(); i++)
+		//			cout << operand[i][0];
+		//		cout << endl;
+
+
+
 	}
+	if (bkt_pot != 0) throw ("Incorrect input");
 }
 
 vector<string> Postfix::GetOP_prf()
