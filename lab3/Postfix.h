@@ -12,22 +12,22 @@ using namespace std;
 
 class Postfix
 {
-	string PRF; // префиксный вид
-	vector<string> OP_ex1 = {}; // доступные односимвольные операции 
-	vector<string> OP_ex2 = {}; // доступные многосимвольные операции
-	TStack<string> OP_s;  // стек операций
-	vector<string> OP_prf;// упорядоченные операции префиксного вида
-	vector<string> operand; // упорядоченные операнды префиксного вида
-	string PSTF; // постфиксный вид
+	string PRF = {}; // префиксный вид
+	vector<string> OP_ex1; // доступные односимвольные операции 
+	vector<string> OP_ex2; // доступные многосимвольные операции
+	TStack<string> OP_s = {};  // стек операций
+	vector<string> OP_prf = {};// упорядоченные операции префиксного вида
+	vector<string> operand = {}; // упорядоченные операнды префиксного вида
+	string PSTF = {}; // постфиксный вид
 
-	void fill_OP_ex1();
-	void fill_OP_ex2();
+	
 
-	//void disassemble(string PRF1);
 
 public:
-	void disassemble(string PRF1);
-	Postfix(string PRF1);
+	void fill_OP_ex1();
+	void fill_OP_ex2();
+	bool disassemble(string PRF1);	
+	Postfix(string PRF1);	
 	~Postfix();
 	void set_prf(string PRF1);
 

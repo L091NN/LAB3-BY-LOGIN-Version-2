@@ -99,6 +99,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ProjectReference Include="..\lab3\lab3.vcxproj">
+      <Project>{7c1bcb8e-7409-4f3c-a9d3-cff9c86da9d1}</Project>
+    </ProjectReference>
     <ProjectReference Include="gtest.vcxproj">
       <Project>{60932afc-7808-48b7-b3bf-f2bc151c0065}</Project>
       <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
@@ -106,6 +109,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\lab3\Postfix.cpp" />
     <ClCompile Include="test_main.cpp" />
     <ClCompile Include="test_TPostfix.cpp" />
     <ClCompile Include="test_TStack.cpp" />

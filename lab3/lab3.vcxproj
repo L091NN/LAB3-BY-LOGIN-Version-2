@@ -119,7 +119,9 @@
     <ClInclude Include="TStack.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Postfix.cpp" />
+    <ClCompile Include="Postfix.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\Asus\source\repos\LAB3-BY-LOGIN-Version-2\lab3;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
     <ClCompile Include="sample_Postfix.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
