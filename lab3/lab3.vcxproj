@@ -116,6 +116,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Postfix.h" />
+    <ClInclude Include="str_switch.h" />
     <ClInclude Include="TStack.h" />
   </ItemGroup>
   <ItemGroup>

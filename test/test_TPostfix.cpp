@@ -81,3 +81,27 @@ TEST(Postfix, throw_when_bkt_close_before_bkt_open)
 {
 	ASSERT_ANY_THROW(Postfix p("abs(a)(b^c)"));
 }
+
+TEST(Postfix, check_correct_postfix_1)
+{
+	Postfix p("a+b-(c/d)*ln(f)+h");
+	string s = "ab+cd/fln()*-h+";
+
+	EXPECT_EQ(s, p.Get_Postfix());
+}
+
+TEST(Postfix, check_correct_postfix_2)
+{
+	Postfix p("(-a)+b+c-d*ln(cos(e))");
+	string s = "a(-)b+c+decos()ln()*-";
+
+	EXPECT_EQ(s, p.Get_Postfix());
+}
+
+TEST(Postfix, check_correct_postfix_3)
+{
+	Postfix p("a*cos(b)+(-c)^ln(d+abs(e-f))");
+	string s = "abcos()*c(-)def-abs()+ln()^+";
+
+	EXPECT_EQ(s, p.Get_Postfix());
+}

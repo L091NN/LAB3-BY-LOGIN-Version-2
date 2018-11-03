@@ -2,10 +2,19 @@
 
 Postfix::Postfix(string PRF1 = "")
 {
-	PRF = PRF1;
 	fill_OP_ex1();
 	fill_OP_ex2();
-	disassemble(PRF);
+	set_prf(PRF1);
+}
+
+Postfix::Postfix(const Postfix &P)
+{
+	PRF = P.PRF;
+	OP_ex1 = P.OP_ex1;
+	OP_ex2 = P.OP_ex2;
+	OP_prf = P.OP_prf;
+	PSTF = P.PSTF;
+	PSTF_str = P.PSTF_str;
 }
 
 Postfix::~Postfix()
@@ -41,12 +50,17 @@ void Postfix::fill_OP_ex2()
 
 void Postfix::set_prf(string PRF1)
 {
-
+	PRF = PRF1;
+	if (PRF != "")
+	{
+		disassemble(PRF);
+		Make_Postfix();
+		Make_PSTF_str();
+	}
 }
 
 bool Postfix::disassemble(const string PRF1)
 {
-	if (PRF1 == "") return 0;
 	string tmp=""; // буфер
 	int bkt_pot = 0; // показатель равновесия скобок : если встречена ( , то +1 , если встречена ) , то -1
 	bool ind = 0; //показатель открытости скобки с минусом (- ... : будет равен 1, пока не встречена )
@@ -77,7 +91,7 @@ bool Postfix::disassemble(const string PRF1)
 
 			cout << " operand: ";
 			for (int i = 0; i < operand.size(); i++)
-				cout << operand[i][0];
+				cout << '|' << operand[i][0];
 			cout << endl;
 
 			break;
@@ -148,7 +162,7 @@ bool Postfix::disassemble(const string PRF1)
 				ind = 0; // присваиваем индекатору 0	
 			}
 
-			operand.push_back(tmp); //добавляем значение буфера к операндам
+			if (tmp != "") operand.push_back(tmp); //добавляем значение буфера к операндам
 			OP_prf.push_back(")"); //добавляем ) в буфер операций
 			tmp = ""; // обнуляем буфер
 			continue; // переходим к следующему символу
@@ -194,21 +208,298 @@ bool Postfix::disassemble(const string PRF1)
 
 		tmp += PRF1[x];
 
-		//cout << x << ' ';
-		//		for (int i = 0; i < OP_prf.size(); i++)
-		//			cout << OP_prf[i][0] << " ";
-		//		cout << " operand: ";
-		//		for (int i = 0; i < operand.size(); i++)
-		//			cout << operand[i][0];
-		//		cout << endl;
-
-
-
 	}
 	if (bkt_pot != 0) throw ("Incorrect input");
+
+	return 1;
 }
 
-vector<string> Postfix::GetOP_prf()
+int Postfix::check_level_OP(string OP)
+{
+	if (OP == "+" || OP == "-") return 1;
+	if (OP == "*" || OP == "%" || OP == "/") return 2;
+	if (OP == "^") return 3;
+
+	return 0;
+}
+
+bool Postfix::Make_Postfix()
+{
+	int on_pos = 0; // позиция в векторе операндов
+	if (operand.size() != 1) PSTF.push_back(operand[on_pos++]); // добавляем первый операнд
+	if (!OP_prf.size()) return 0;
+	TStack <string> OP_s;
+	string operator_now;
+	int ind = 1;
+	for (int x = 0; x < OP_prf.size() + 1; x++)
+	{
+
+		if (x == OP_prf.size())
+		{
+			while (!OP_s.is_empty())
+			{
+				if (OP_s.top() == "////")
+					OP_s.pop();
+				PSTF.push_back(OP_s.pop());
+			}
+
+			break;
+		}
+
+		string tmp = "";
+
+		operator_now = OP_prf[x];
+
+		for (int y = 2; y < OP_ex1.size(); y++)
+		{
+			if (OP_ex1[y] == OP_prf[x])
+			{
+				operator_now = "ex1";
+				tmp = OP_prf[x];
+				break;
+			}
+		}
+		if (tmp == "")
+		for (int y = 0; y < OP_ex2.size(); y++)
+		{
+			if (OP_ex2[y] == OP_prf[x])
+			{
+				operator_now = "ex2";
+				tmp = OP_prf[x];
+				break;
+			}
+		}
+
+		SWITCH (operator_now)
+		{
+			CASE("(") :
+			{
+				OP_s.push("(");
+				OP_s.push("////");
+				ind = 1; // что с ним делать?
+
+				break;
+			}
+			CASE("(-") :
+			{
+				if (on_pos == 0) PSTF.push_back(operand[on_pos++]);
+				PSTF.push_back("(-)");
+				++x;
+				break;
+			}
+			CASE(")") :
+			{
+				while (OP_s.top() != "////")
+				{
+					PSTF.push_back(OP_s.pop());
+				}
+				OP_s.pop();
+				if(OP_s.top() != "(") PSTF.push_back(OP_s.pop() + "()");
+				else OP_s.pop();
+				if (!OP_s.is_empty()) ind = check_level_OP(OP_s.top());
+				else ind = 1;
+
+				break;
+			}
+			CASE("ex1") :
+			{
+				if (ind < check_level_OP(tmp))
+				{
+					OP_s.push(tmp);
+					ind = check_level_OP(tmp);
+				}
+				else
+				{
+					if (!OP_s.is_empty())
+					{
+						if (OP_s.top() != "////")
+						{
+							while (ind >= check_level_OP(tmp))
+							{
+								PSTF.push_back(OP_s.pop());
+								if (OP_s.is_empty()) break;
+								if (OP_s.top() == "////") break;
+								ind = check_level_OP(OP_s.top());
+							}
+						}
+					}
+					OP_s.push(tmp);
+				}
+
+				if (on_pos == 0) PSTF.push_back(operand[on_pos++]);
+				PSTF.push_back(operand[on_pos++]);
+
+				break;
+			}
+			CASE("ex2") :
+			{
+				if (on_pos == 0) PSTF.push_back(operand[on_pos++]);
+				OP_s.push(tmp);
+				OP_s.push("////");
+				ind = 1;
+
+				
+			}
+
+		}
+
+		//cout << endl;
+		//cout << x << ' ';
+		//for (int i = 0; i < PSTF.size(); i++)
+		//{
+		//	cout << PSTF[i] << ' , ';
+		//}
+		//cout << endl;
+	}
+
+	
+}
+
+//bool Postfix::Make_Postfix()
+//{
+//	int on_pos = 0; // позиция в векторе операндов
+//	if (operand.size() == 1) PSTF.push_back(operand[on_pos++]); // добавляем первый операнд
+//	if (!OP_prf.size()) return 0;
+//	int ind = 0; // показатель ступени в стеке, т.е. 1 : +,- ; 2 : *,/,% ; 3 : ^
+//	TStack<string> OP_s = {};  // стек операций
+//	string Operator; // буфер текущего оператора
+//	for (int x = 0; x < OP_prf.size() + 1; x++) // перебираем операторы
+//	{
+//		
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//		if (x == OP_prf.size()) // когда вектор операторов кончился
+//		{
+//			while (OP_s.is_empty() != 1) // пока стек не пуст, выполнять ...
+//			{
+//				if (OP_s.top() == "////")
+//				{
+//					OP_s.pop();
+//				}
+//				PSTF.push_back(OP_s.pop()); // добавлять в вектор элементов постфиксного вида элементы из стека
+//			}
+//			break; // выходим из цикла перебора операторов
+//		}
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//		Operator = "";
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//		if (OP_prf[x] == ")") // если встречена ) , то ...
+//		{
+//			if (on_pos == 0) PSTF.push_back(operand[on_pos++]);
+//			while (OP_s.top() != "////")
+//			{
+//				PSTF.push_back(OP_s.pop());
+//			}
+//			OP_s.pop();
+//			if (OP_s.top() != "(")
+//			PSTF.push_back(OP_s.pop() + "()");
+//			else OP_s.pop();
+//			if (!OP_s.is_empty())
+//			{
+//				if (OP_s.top() == "////") ind = 0;
+//				if (OP_s.top() == "+" || OP_s.top() == "-") ind = 1;
+//				if (OP_s.top() == "*" || OP_s.top() == "%" || OP_s.top() == "/") ind = 2;
+//				if (OP_s.top() == "^") ind = 3;
+//			}
+//			else ind = 0;
+//			continue;
+//		}
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//		if (OP_prf[x] == "(")
+//		{
+//			Operator = "(";
+//			OP_s.push("(");
+//			OP_s.push("////");
+//			ind = 0;
+//			continue;
+//		}
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//		if (OP_prf[x] == "(-")
+//		{
+//			//PSTF.push_back(operand[on_pos++]);
+//			PSTF.push_back("(-)");
+//			x++;
+//			continue;
+//		}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//		if (Operator == "")
+//		for (int y = 0; y < OP_ex2.size(); y++)
+//		{
+//			if (OP_prf[x] == OP_ex2[y])
+//			{
+//				Operator = OP_ex2[y];
+//				OP_s.push(OP_ex2[y]);
+//				OP_s.push("////");
+//				ind = 0;
+//				break;
+//			}
+//		}
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//		int ind_now = 0; // показатель ступени потенциальной операции
+//		if (Operator == "")
+//		for (int y = 2; y < OP_ex1.size(); y++)
+//		{
+//			if (OP_prf[x] == OP_ex1[y])
+//			{
+//				if (on_pos == 0) PSTF.push_back(operand[on_pos++]);
+//				PSTF.push_back(operand[on_pos++]);
+//				Operator = OP_ex1[y];
+//				if (OP_ex1[y] == "+" || OP_ex1[y] == "-") ind_now = 1;
+//				if (OP_ex1[y] == "*" || OP_ex1[y] == "%" || OP_ex1[y] == "/") ind_now = 2;
+//				if (OP_ex1[y] == "^") ind_now = 3;
+//				break;
+//			}
+//		}
+//
+//
+//		while (ind >= ind_now)
+//		{
+////			if (OP_s.top() != "////")
+//			PSTF.push_back(OP_s.pop());
+//			if (!OP_s.is_empty())
+//			{
+//				if (OP_s.top() == "////") ind = 0;
+//				if (OP_s.top() == "+" || OP_s.top() == "-") ind = 1;
+//				if (OP_s.top() == "*" || OP_s.top() == "%" || OP_s.top() == "/") ind = 2;
+//				if (OP_s.top() == "^") ind = 3;
+//			}
+//			else ind = 0;
+//			if (OP_s.is_empty()) break;
+//		}
+//
+//		if (ind_now > ind)
+//		{
+//			OP_s.push(Operator);
+//			ind = ind_now;
+//		}
+//
+//	}
+//}
+
+void Postfix::Make_PSTF_str()
+{
+	for (int i = 0; i < PSTF.size(); i++)
+	{
+		PSTF_str += PSTF[i];
+	}
+}
+
+vector<string> Postfix::Get_OP_prf()
 {
 	return OP_prf;
 }
+
+string Postfix::Get_PRF()
+{
+	return PRF;
+}
+
+vector<string> Postfix::Get_operands()
+{
+	return operand;
+}
+
+string Postfix::Get_Postfix()
+{
+	return PSTF_str;
+}
+
