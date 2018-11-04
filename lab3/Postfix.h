@@ -5,6 +5,7 @@
 #include <vector>
 #include "TStack.h"
 #include "str_switch.h"
+#include<math.h>
 
 using namespace std;
 
@@ -30,13 +31,20 @@ class Postfix
 
 public:
 		
-	Postfix(string PRF1);
+	Postfix(string PRF1 = "");
 	Postfix(const Postfix &P);
 	~Postfix();
-	void set_prf(string PRF1);
+	void Set_prf(string PRF1);
+	void Set_unknow_operand(TStack<string> Ts);
 
+	bool this_unknow_operand(string opn);
+	bool there_is_unknow_value();
+
+	string erase_gap(string STR1);
 
 	int check_level_OP(string OP);
+
+	TStack<string> Get_unknow_value();
 	string Get_PRF();
 	vector<string> Get_OP_prf();
 	vector<string> Get_operands();

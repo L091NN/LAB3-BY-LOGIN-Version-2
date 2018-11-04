@@ -8,6 +8,18 @@ TEST(TStack, can_create_stack)
 	ASSERT_NO_THROW(TStack<int> S());
 }
 
+TEST(TStack, can_create_stack_copy)
+{
+	TStack<int> S1;
+
+	for (int i = 0; i < STACK_MAX_SIZE - 1; i++)
+	{
+		S1.push(i);
+	}
+
+	ASSERT_NO_THROW(TStack<int> S2(S1););
+}
+
 TEST(TStack, can_push_element)
 {
 	TStack<string> s;
@@ -88,3 +100,11 @@ TEST(TStack, throw_when_top_of_empty_stack)
 	ASSERT_ANY_THROW(s.top());
 }
 
+TEST(TStack, check_size)
+{
+	TStack<int> s;
+	for (int i = 0; i < STACK_MAX_SIZE; i++)
+		s.push(i);
+
+	EXPECT_EQ(100,s.size());
+}

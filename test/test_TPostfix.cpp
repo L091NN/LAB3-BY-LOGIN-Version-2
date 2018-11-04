@@ -67,6 +67,11 @@ TEST(Postfix, throw_when_bkt_open_after_not_operator)
 	ASSERT_ANY_THROW(Postfix p("acos(b)"));
 }
 
+TEST(Postfix, throw_when_minus_after_operator)
+{
+	ASSERT_ANY_THROW(Postfix p("cos(-b)"));
+}
+
 TEST(Postfix, throw_when_number_bkt_open_and_bkt_close_not_equal)
 {
 	ASSERT_ANY_THROW(Postfix p("((a/b)"));
@@ -105,3 +110,50 @@ TEST(Postfix, check_correct_postfix_3)
 
 	EXPECT_EQ(s, p.Get_Postfix());
 }
+
+TEST(Postfix, check_correct_postfix_4)
+{
+	Postfix p("sin(cos(tg(ctg(abs(ln(exp(sign(a))))))))");
+	string s = "asign()exp()ln()abs()ctg()tg()cos()sin()";
+
+	EXPECT_EQ(s, p.Get_Postfix());
+}
+
+TEST(Postfix, check_correct_postfix_5)
+{
+	Postfix p("sin(cos(tg(ctg(abs(ln(exp(sign((-a)+b^c%d/e-f*g))))))))");
+	string s = "a(-)bc^d%e/+fg*-sign()exp()ln()abs()ctg()tg()cos()sin()";
+
+	EXPECT_EQ(s, p.Get_Postfix());
+}
+
+TEST(Postfix, check_erase_gap_1)
+{
+	Postfix p("a");
+	string s = "a+b-c*ln(h%j)";
+
+	EXPECT_EQ(s, p.erase_gap("a + b - c * ln( h % j)"));
+}
+
+TEST(Postfix, check_erase_gap_2)
+{
+	Postfix p("sin(cos(tg   ( ctg(  abs(  ln(  exp(  sign(  (  -a  ) + b ^ c   %   d / e - f * g))  )))  )))");
+	string s = "sin(cos(tg(ctg(abs(ln(exp(sign((-a)+b^c%d/e-f*g))))))))";
+
+	EXPECT_EQ(s, p.erase_gap("sin(cos(tg   ( ctg(  abs(  ln(  exp(  sign(  (  -a  ) + b ^ c   %   d / e - f * g))  )))  )))"));
+}
+
+TEST(Postfix, check_there_is_unknow_value_if_false)
+{
+	Postfix p("7 + 8 - 9 * 1");
+
+	EXPECT_EQ(0,p.there_is_unknow_value());
+}
+
+TEST(Postfix, check_there_is_unknow_value_if_true)
+{
+	Postfix p("7 + b - 9 * n");
+
+	EXPECT_EQ(1, p.there_is_unknow_value());
+}
+

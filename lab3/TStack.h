@@ -16,6 +16,16 @@ public:
 		for (int i = 0; i < STACK_MAX_SIZE; i++)
 			Stack[i] = {};
 	}
+
+	//TStack(TStack<ElemType> TS)
+	//{
+	//	Lii = TS.Lii;
+	//	for (int i = 0; i < STACK_MAX_SIZE; i++)
+	//	{
+	//		Stack[i] = TS.Stack[i];
+	//	}
+	//}
+
 	~TStack()
 	{
 
@@ -56,6 +66,11 @@ public:
 	{
 		if (is_empty()) throw("!Error! Empty Stack.");
 		return Stack[Lii];
+	}
+
+	int size()
+	{
+		return Lii + 1;
 	}
 };
 
