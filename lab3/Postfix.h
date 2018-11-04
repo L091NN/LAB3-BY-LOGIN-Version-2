@@ -34,6 +34,7 @@ public:
 	Postfix(string PRF1 = "");
 	Postfix(const Postfix &P);
 	~Postfix();
+
 	void Set_prf(string PRF1);
 	void Set_unknow_operand(vector<string> Ts);
 
