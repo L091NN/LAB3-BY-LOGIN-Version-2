@@ -121,8 +121,8 @@ TEST(Postfix, check_correct_postfix_4)
 
 TEST(Postfix, check_correct_postfix_5)
 {
-	Postfix p("sin(cos(tg(ctg(abs(ln(exp(sign((-a)+b^c%d/e-f*g))))))))");
-	string s = "a(-)bc^d%e/+fg*-sign()exp()ln()abs()ctg()tg()cos()sin()";
+	Postfix p("sin(cos(tg(ctg(abs(ln(exp(sign((-a)+b^c*d/e-f*g))))))))");
+	string s = "a(-)bc^d*e/+fg*-sign()exp()ln()abs()ctg()tg()cos()sin()";
 
 	EXPECT_EQ(s, p.Get_Postfix());
 }
@@ -130,17 +130,17 @@ TEST(Postfix, check_correct_postfix_5)
 TEST(Postfix, check_erase_gap_1)
 {
 	Postfix p("a");
-	string s = "a+b-c*ln(h%j)";
+	string s = "a+b-c*ln(h^j)";
 
-	EXPECT_EQ(s, p.erase_gap("a + b - c * ln( h % j)"));
+	EXPECT_EQ(s, p.erase_gap("a + b - c * ln( h ^ j)"));
 }
 
 TEST(Postfix, check_erase_gap_2)
 {
-	Postfix p("sin(cos(tg   ( ctg(  abs(  ln(  exp(  sign(  (  -a  ) + b ^ c   %   d / e - f * g))  )))  )))");
-	string s = "sin(cos(tg(ctg(abs(ln(exp(sign((-a)+b^c%d/e-f*g))))))))";
+	Postfix p("sin(cos(tg   ( ctg(  abs(  ln(  exp(  sign(  (  -a  ) + b ^  d / e - f * g))  )))  )))");
+	string s = "sin(cos(tg(ctg(abs(ln(exp(sign((-a)+b^d/e-f*g))))))))";
 
-	EXPECT_EQ(s, p.erase_gap("sin(cos(tg   ( ctg(  abs(  ln(  exp(  sign(  (  -a  ) + b ^ c   %   d / e - f * g))  )))  )))"));
+	EXPECT_EQ(s, p.erase_gap("sin(cos(tg   ( ctg(  abs(  ln(  exp(  sign(  (  -a  ) + b ^   d / e - f * g))  )))  )))"));
 }
 
 TEST(Postfix, check_there_is_unknow_value_if_false)
@@ -157,3 +157,47 @@ TEST(Postfix, check_there_is_unknow_value_if_true)
 	EXPECT_EQ(1, p.there_is_unknow_value());
 }
 
+TEST(Postfix, throw_when_vector_with_operands_long)
+{
+	Postfix p("7 + b - 9 * n");
+	vector<string> ts;
+	ts.push_back("8");
+	ts.push_back("8");
+	ts.push_back("8");
+
+	ASSERT_ANY_THROW(p.Set_unknow_operand(ts));
+}
+
+TEST(Postfix, check_set_uknow_operand)
+{
+	Postfix p("7 + b - 9 * n");
+	string s = "78+98*-";
+	vector<string> ts;
+	ts.push_back("8");
+	ts.push_back("8");
+	p.Set_unknow_operand(ts);
+
+
+	EXPECT_EQ(s,p.Get_Postfix());
+}
+
+TEST(Postfix, check_calc_1)
+{
+	Postfix p(" ((7 * 8) / 2^2 - 4)^2");
+
+	EXPECT_EQ(100, p.calc());
+}
+
+TEST(Postfix, check_calc_2)
+{
+	Postfix p("sign(((-7) * (-7) - 9) * 25 -1000) * exp( sin (3.1415)) / (1 + 1/10000) ^ 10000 ");
+
+	EXPECT_EQ(0, p.calc());
+}
+
+TEST(Postfix, throw_when_one_unknow_operator)
+{
+	Postfix p("sign(((-a) * (-7) - 9) * 25 -1000) * exp( sin (3.1415)) / (1 + 1/10000) ^ 10000 ");
+
+	ASSERT_ANY_THROW(p.calc());
+}

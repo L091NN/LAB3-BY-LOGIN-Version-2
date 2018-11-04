@@ -30,8 +30,7 @@ void Postfix::fill_OP_ex1()
 	OP_ex1.push_back("-"); //3
 	OP_ex1.push_back("*"); //4
 	OP_ex1.push_back("/"); //5
-	OP_ex1.push_back("%"); //6
-	OP_ex1.push_back("^"); //7
+	OP_ex1.push_back("^"); //6
 }
 
 void Postfix::fill_OP_ex2()
@@ -75,17 +74,21 @@ void Postfix::Set_prf(string PRF1)
 	}
 }
 
-void Postfix::Set_unknow_operand(TStack<string> Ts)
+void Postfix::Set_unknow_operand(vector<string> Ts)
 {
-	TStack<string> temp = Get_unknow_value();
-
-	vector <string> S = {};
-	for (int i = 0; !temp.is_empty(); ++i)
+	vector<string> temp = Get_unknow_value();
+	if (Ts.size() > temp.size()) throw("Stack very big!");
+	int index = 0;
+	for (int i = 0; i < operand.size(); i++)
 	{
-		S.push_back(temp.pop());
+		if (index == Ts.size()) break;
+		if (this_unknow_operand(operand[i]))
+		{
+			operand[i] = Ts[index++];
+		}
 	}
-
-
+	Make_Postfix();
+	Make_PSTF_str();
 }
 
 bool Postfix::disassemble(const string PRF1)
@@ -110,18 +113,6 @@ bool Postfix::disassemble(const string PRF1)
 				operand.push_back(tmp);
 				tmp = "";
 			} 
-			//cout << x << ' ';
-			//for (int i = 0; i < OP_prf.size(); i++)
-			//{
-			//	for (int j = 0; j < OP_prf[i].size(); j++)
-			//		cout << OP_prf[i][j];
-			//	cout << " ";
-			//}
-
-			//cout << " operand: ";
-			//for (int i = 0; i < operand.size(); i++)
-			//	cout << '|' << operand[i][0];
-			//cout << endl;
 
 			break;
 		}
@@ -184,11 +175,6 @@ bool Postfix::disassemble(const string PRF1)
 			if (tmp == "") // если буфер пуст, то...
 			{
 				if (OP_prf[OP_prf.size() - 1] != ")") throw("Incorrect input"); // если последняя операция не ) , то это ошибка
-			}
-
-			if (x == PRF1.size() - 1)
-			{
-
 			}
 
 			--bkt_pot;  // отнимаем от показателя скобок 1
@@ -254,7 +240,7 @@ bool Postfix::disassemble(const string PRF1)
 int Postfix::check_level_OP(string OP)
 {
 	if (OP == "+" || OP == "-") return 1;
-	if (OP == "*" || OP == "%" || OP == "/") return 2;
+	if (OP == "*" || OP == "/") return 2;
 	if (OP == "^") return 3;
 
 	return 0;
@@ -262,6 +248,7 @@ int Postfix::check_level_OP(string OP)
 
 bool Postfix::Make_Postfix()
 {
+	PSTF = {};
 	int on_pos = 0; // позиция в векторе операндов
 	if (operand.size() != 1) PSTF.push_back(operand[on_pos++]); // добавляем первый операнд
 	if (!OP_prf.size()) return 0;
@@ -411,6 +398,7 @@ bool Postfix::this_unknow_operand(string opn)
 
 void Postfix::Make_PSTF_str()
 {
+	PSTF_str = "";
 	for (int i = 0; i < PSTF.size(); i++)
 	{
 		PSTF_str += PSTF[i];
@@ -419,8 +407,6 @@ void Postfix::Make_PSTF_str()
 
 bool Postfix::there_is_unknow_value()
 {
-
-	string ex_double = ".0123456789";
 	for (int x = 0; x < operand.size(); ++x)
 	{
 		if (this_unknow_operand(operand[x])) return 1;
@@ -429,13 +415,163 @@ bool Postfix::there_is_unknow_value()
 	return 0;
 }
 
-TStack<string> Postfix::Get_unknow_value()
+double Postfix::calc()
 {
-	TStack<string> vs;
-
-	for (int i = operand.size(); i >= 0; --i)
+	if (there_is_unknow_value()) throw ("There is unknow value!");
+	TStack<double> op_nd;
+	for (int x = 0; x < PSTF.size(); ++x)
 	{
-		if (this_unknow_operand(operand[i])) vs.push(operand[i]);
+
+
+		SWITCH(PSTF[x])
+		{
+			CASE("+") :
+			{
+				double res;
+				res = op_nd.pop();
+				res += op_nd.pop();
+				op_nd.push(res);
+
+				break;
+			}
+			CASE("-") :
+			{
+				double res;
+				res = op_nd.pop();
+				res = op_nd.pop() - res;
+				op_nd.push(res);
+
+				break;
+			}
+			CASE("(-)") :
+			{
+				double res;
+				res = op_nd.pop();
+				if (res > 0) res -= 2 * res;
+				else res += 2 * res;
+				op_nd.push(res);
+
+				break;
+			}
+			CASE("*") :
+			{
+				double res;
+				res = op_nd.pop();
+				res *= op_nd.pop();
+				op_nd.push(res);
+
+				break;
+			}
+			CASE("/") :
+			{
+				double res;
+				res = op_nd.pop();
+				res = op_nd.pop() / res;
+				op_nd.push(res);
+
+				break;
+			}
+			CASE("^") :
+			{
+				double res;
+				res = op_nd.pop();
+				res = powf(op_nd.pop(),res);
+				op_nd.push(res);
+
+				break;
+			}
+			CASE("sin()") :
+			{
+				double res;
+				res = op_nd.pop();
+				res = sin(res);
+				op_nd.push(res);
+
+				break;
+			}
+			CASE("cos()") :
+			{
+				double res;
+				res = op_nd.pop();
+				res = cos(res);
+				op_nd.push(res);
+
+				break;
+			}
+			CASE("tg()") :
+			{
+				double res;
+				res = op_nd.pop();
+				res = tan(res);
+				op_nd.push(res);
+
+				break;
+			}
+			CASE("ctg()") :
+			{
+				double res;
+				res = op_nd.pop();
+				res = tan(res);
+				res = 1 / res;
+				op_nd.push(res);
+
+				break;
+			}
+			CASE("exp()") :
+			{
+				double res;
+				res = op_nd.pop();
+				res = exp(res);
+				op_nd.push(res);
+
+				break;
+			}
+			CASE("abs()") :
+			{
+				double res;
+				res = op_nd.pop();
+				res = abs(res);
+				op_nd.push(res);
+
+				break;
+			}
+			CASE("sign()") :
+			{
+				double res;
+				res = op_nd.pop();
+				if (res > 0.0) res = 1.0;
+				if (res == 0.0) res = 0.0;
+				if (res < 0.0) res = -1.0;
+				op_nd.push(res);
+
+				break;
+			}
+			CASE("ln()") :
+			{
+				double res;
+				res = op_nd.pop();
+				res = log(res);
+				op_nd.push(res);
+
+				break;
+			}
+			DEFAULT :
+			{
+				op_nd.push(stod(PSTF[x]));
+			}
+		}
+	}
+
+	return op_nd.pop();
+}
+
+vector<string> Postfix::Get_unknow_value()
+{
+	vector<string> vs;
+
+	for (int i = 0; i < operand.size(); ++i)
+	{
+		if (this_unknow_operand(operand[i])) vs.push_back(operand[i]);
 	}
 
 	return vs;
@@ -462,3 +598,12 @@ string Postfix::Get_Postfix()
 	return PSTF_str;
 }
 
+vector<string> Postfix::Get_OP_ex1()
+{
+	return OP_ex1;
+}
+
+vector<string> Postfix::Get_OP_ex2()
+{
+	return OP_ex2;
+}

@@ -17,14 +17,14 @@ public:
 			Stack[i] = {};
 	}
 
-	//TStack(TStack<ElemType> TS)
-	//{
-	//	Lii = TS.Lii;
-	//	for (int i = 0; i < STACK_MAX_SIZE; i++)
-	//	{
-	//		Stack[i] = TS.Stack[i];
-	//	}
-	//}
+	TStack( const TStack<ElemType> &TS)
+	{
+		Lii = TS.Lii;
+		for (int i = 0; i < STACK_MAX_SIZE; i++)
+		{
+			Stack[i] = TS.Stack[i];
+		}
+	}
 
 	~TStack()
 	{
@@ -72,6 +72,21 @@ public:
 	{
 		return Lii + 1;
 	}
+
+	TStack<ElemType>& operator=(const TStack<ElemType> &TS)
+	{
+		if (this != &TS)
+		{
+			Lii = TS.Lii;
+			for (int i = 0; i < Lii + 1; ++i)
+			{
+				Stack[i] = TS.Stack[i];
+			}
+		}
+
+		return *this;
+	}
+
 };
 
 #endif

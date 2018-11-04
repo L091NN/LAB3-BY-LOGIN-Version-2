@@ -108,3 +108,4 @@ TEST(TStack, check_size)
 
 	EXPECT_EQ(100,s.size());
 }
+

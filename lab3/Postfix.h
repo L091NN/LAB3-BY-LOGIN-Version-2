@@ -35,20 +35,24 @@ public:
 	Postfix(const Postfix &P);
 	~Postfix();
 	void Set_prf(string PRF1);
-	void Set_unknow_operand(TStack<string> Ts);
+	void Set_unknow_operand(vector<string> Ts);
 
 	bool this_unknow_operand(string opn);
 	bool there_is_unknow_value();
 
 	string erase_gap(string STR1);
 
+	double calc();
+
 	int check_level_OP(string OP);
 
-	TStack<string> Get_unknow_value();
+	vector<string> Get_unknow_value();
 	string Get_PRF();
 	vector<string> Get_OP_prf();
 	vector<string> Get_operands();
 	string Get_Postfix();
+	vector<string> Get_OP_ex1();
+	vector<string> Get_OP_ex2();
 };
 
 
