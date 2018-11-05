@@ -90,7 +90,7 @@ TEST(Postfix, throw_when_bkt_close_before_bkt_open)
 TEST(Postfix, check_correct_postfix_1)
 {
 	Postfix p("a+b-(c/d)*ln(f)+h");
-	string s = "ab+cd/fln()*-h+";
+	string s = "a,b,+,c,d,/,f,ln(),*,-,h,+";
 
 	EXPECT_EQ(s, p.Get_Postfix());
 }
@@ -98,7 +98,7 @@ TEST(Postfix, check_correct_postfix_1)
 TEST(Postfix, check_correct_postfix_2)
 {
 	Postfix p("(-a)+b+c-d*ln(cos(e))");
-	string s = "a(-)b+c+decos()ln()*-";
+	string s = "a,(-),b,+,c,+,d,e,cos(),ln(),*,-";
 
 	EXPECT_EQ(s, p.Get_Postfix());
 }
@@ -106,7 +106,7 @@ TEST(Postfix, check_correct_postfix_2)
 TEST(Postfix, check_correct_postfix_3)
 {
 	Postfix p("a*cos(b)+(-c)^ln(d+abs(e-f))");
-	string s = "abcos()*c(-)def-abs()+ln()^+";
+	string s = "a,b,cos(),*,c,(-),d,e,f,-,abs(),+,ln(),^,+";
 
 	EXPECT_EQ(s, p.Get_Postfix());
 }
@@ -114,7 +114,7 @@ TEST(Postfix, check_correct_postfix_3)
 TEST(Postfix, check_correct_postfix_4)
 {
 	Postfix p("sin(cos(tg(ctg(abs(ln(exp(sign(a))))))))");
-	string s = "asign()exp()ln()abs()ctg()tg()cos()sin()";
+	string s = "a,sign(),exp(),ln(),abs(),ctg(),tg(),cos(),sin()";
 
 	EXPECT_EQ(s, p.Get_Postfix());
 }
@@ -122,7 +122,7 @@ TEST(Postfix, check_correct_postfix_4)
 TEST(Postfix, check_correct_postfix_5)
 {
 	Postfix p("sin(cos(tg(ctg(abs(ln(exp(sign((-a)+b^c*d/e-f*g))))))))");
-	string s = "a(-)bc^d*e/+fg*-sign()exp()ln()abs()ctg()tg()cos()sin()";
+	string s = "a,(-),b,c,^,d,*,e,/,+,f,g,*,-,sign(),exp(),ln(),abs(),ctg(),tg(),cos(),sin()";
 
 	EXPECT_EQ(s, p.Get_Postfix());
 }
@@ -171,7 +171,7 @@ TEST(Postfix, throw_when_vector_with_operands_long)
 TEST(Postfix, check_set_uknow_operand)
 {
 	Postfix p("7 + b - 9 * n");
-	string s = "78+98*-";
+	string s = "7,8,+,9,8,*,-";
 	vector<string> ts;
 	ts.push_back("8");
 	ts.push_back("8");
