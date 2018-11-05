@@ -65,6 +65,8 @@ string Postfix::erase_gap(string STR1)
 void Postfix::Set_prf(string PRF1)
 {
 	PRF = PRF1;
+	OP_prf = {};
+	operand = {};
 	if (PRF != "")
 	{
 		PRF = erase_gap(PRF);
@@ -244,6 +246,11 @@ int Postfix::check_level_OP(string OP)
 bool Postfix::Make_Postfix()
 {
 	PSTF = {};
+	if (OP_prf.size() == 0 && operand.size() == 1)
+	{
+		PSTF.push_back(operand[0]);
+		return 0;
+	}
 	int on_pos = 0; // позиция в векторе операндов
 	if (operand.size() != 1) PSTF.push_back(operand[on_pos++]); // добавляем первый операнд
 	if (!OP_prf.size()) return 0;
@@ -389,7 +396,9 @@ void Postfix::Make_PSTF_str()
 	PSTF_str = "";
 	for (int i = 0; i < PSTF.size(); i++)
 	{
-		PSTF_str += PSTF[i];
+		if (i == PSTF.size() - 1) PSTF_str += PSTF[i];
+		else
+		PSTF_str += PSTF[i] + ',';
 	}
 }
 

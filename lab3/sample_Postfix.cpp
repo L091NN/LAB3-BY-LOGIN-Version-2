@@ -7,10 +7,11 @@ void main()
 {
 	setlocale(LC_ALL, "ru");
 	Postfix p;
-	string s = "";
+	
 
 	while (1)
 	{
+		string s = "";
 		system("cls");
 		cout << "Доступные операции:" << endl;
 
@@ -36,6 +37,7 @@ void main()
 
 		while (p.there_is_unknow_value())
 		{
+			s = "";
 			cout << p.Get_unknow_value()[0] << '=';
 			cin >> s;
 			vector<string> vs;
